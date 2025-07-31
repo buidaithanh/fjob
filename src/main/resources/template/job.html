@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Thông báo đăng ký thành công</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f6f8fa;
+        color: #333;
+        margin: 0;
+        padding: 0;
+      }
+
+      .container {
+        max-width: 600px;
+        margin: 30px auto;
+        background-color: #ffffff;
+        padding: 20px 30px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+      }
+
+      h2 {
+        color: #2c3e50;
+      }
+
+      .job-listing {
+        margin-top: 20px;
+      }
+
+      .job-item {
+        border-bottom: 1px solid #ddd;
+        padding: 10px 0;
+      }
+
+      .job-item:last-child {
+        border-bottom: none;
+      }
+
+      .job-title {
+        font-weight: bold;
+        color: #2980b9;
+      }
+
+      .company {
+        font-style: italic;
+      }
+
+      .footer {
+        margin-top: 30px;
+        font-size: 12px;
+        color: #999;
+      }
+
+      .btn {
+        display: inline-block;
+        padding: 10px 20px;
+        margin-top: 20px;
+        background-color: #3498db;
+        color: #ffffff;
+        text-decoration: none;
+        border-radius: 5px;
+      }
+
+      .btn:hover {
+        background-color: #2980b9;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h2>Chào <span>Người dùng</span> 👋</h2>
+      <p>
+        Bạn đã đăng ký thành công để nhận
+        <strong>tin tuyển dụng IT</strong> theo ngôn ngữ lập trình:
+      </p>
+      <p style="font-size: 16px; color: #27ae60">
+        <strong>Java</strong>
+      </p>
+
+      <p>Dưới đây là một số công việc mới dành cho bạn:</p>
+
+      <div class="job-listing" th:each="job : ${jobs}">
+        <div class="job-item">
+          <div class="job-title" th:text="${job.name}">Backend Developer</div>
+          <div class="company" th:text="${job.company.name}">ABC Tech</div>
+          <div class="skill">
+            Skill:
+            <span
+              style="padding: 2px; background-color: #d4d4d4; margin-right: 6px"
+              th:each="skill : ${job.skills}"
+              th:text="${skill.name}"
+            ></span>
+          </div>
+          <div class="salary">
+            <span
+              th:text="${#numbers.formatDecimal(job.salary,0,'COMMA',0,'POINT')}"
+            >
+            </span>
+          </div>
+          <div class="location">Hà Nội, Việt Nam</div>
+          <a class="btn" target="_blank">Xem chi tiết</a>
+        </div>
+      </div>
+
+      <div class="footer">
+        Bạn nhận được email này vì đã đăng ký trên hệ thống của chúng tôi.<br />
+        Nếu bạn không muốn nhận email nữa, vui lòng
+        <a>hủy đăng ký</a>.
+      </div>
+    </div>
+  </body>
+</html>
