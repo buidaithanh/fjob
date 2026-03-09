@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.turkraft.springfilter.boot.Filter;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import vn.baymax.fjob.domain.Permission;
 import vn.baymax.fjob.dto.response.ResultPaginationDTO;
@@ -24,6 +26,7 @@ import vn.baymax.fjob.util.error.IdInvalidException;
 
 @RestController
 @RequestMapping("/api/v1")
+@Tag(name = "Permission API", description = "APIs quản lý Permission")
 public class PermissionController {
     private final PermissionService permissionService;
 
@@ -31,6 +34,7 @@ public class PermissionController {
         this.permissionService = permissionService;
     }
 
+    @Operation(summary = "Create permission", description = "Tạo mới permission")
     @PostMapping("/permissions")
     @ApiMessage("create a new permission")
     public ResponseEntity<Permission> createPermission(@Valid @RequestBody Permission permission)
@@ -42,6 +46,7 @@ public class PermissionController {
         return ResponseEntity.status(HttpStatus.CREATED).body(this.permissionService.create(permission));
     }
 
+    @Operation(summary = "Update permission", description = "Cập nhật permission")
     @PutMapping("/permissions")
     @ApiMessage("update a new permission")
     public ResponseEntity<Permission> updatePermission(@Valid @RequestBody Permission permission)
@@ -56,6 +61,7 @@ public class PermissionController {
         return ResponseEntity.status(HttpStatus.CREATED).body(this.permissionService.updatePermission(permission));
     }
 
+    @Operation(summary = "Delete permission", description = "Xóa permission theo ID")
     @DeleteMapping("/permissions/{id}")
     @ApiMessage("delete a new permission")
     public ResponseEntity<Void> deletePermission(@PathVariable Long id) throws IdInvalidException {

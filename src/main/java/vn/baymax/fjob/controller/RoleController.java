@@ -15,6 +15,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.turkraft.springfilter.boot.Filter;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import vn.baymax.fjob.domain.Role;
 import vn.baymax.fjob.dto.response.ResultPaginationDTO;
@@ -24,6 +29,8 @@ import vn.baymax.fjob.util.error.IdInvalidException;
 
 @RestController
 @RequestMapping("/api/v1")
+@Tag(name = "Role Management", description = "APIs for managing roles in the system")
+@SecurityRequirement(name = "bearerAuth")
 public class RoleController {
     private final RoleService roleService;
 
@@ -31,6 +38,12 @@ public class RoleController {
         this.roleService = roleService;
     }
 
+    @Operation(summary = "Create a new role")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Role created successfully"),
+            @ApiResponse(responseCode = "400", description = "Role name already exists"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized")
+    })
     @PostMapping("/roles")
     @ApiMessage("create a role")
     public ResponseEntity<Role> createRole(@Valid @RequestBody Role role) throws IdInvalidException {
@@ -41,6 +54,12 @@ public class RoleController {
         return ResponseEntity.status(HttpStatus.CREATED).body(this.roleService.create(role));
     }
 
+    @Operation(summary = "Update an existing role")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Role updated successfully"),
+            @ApiResponse(responseCode = "400", description = "Role not found or name already exists"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized")
+    })
     @PutMapping("/roles")
     @ApiMessage("update a role")
     public ResponseEntity<Role> upldateRole(@Valid @RequestBody Role role) throws IdInvalidException {
@@ -53,6 +72,12 @@ public class RoleController {
         return ResponseEntity.status(HttpStatus.CREATED).body(this.roleService.update(role));
     }
 
+    @Operation(summary = "Delete a role by ID")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Role deleted successfully"),
+            @ApiResponse(responseCode = "400", description = "Role not found"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized")
+    })
     @DeleteMapping("/roles/{id}")
     @ApiMessage("delete a role")
     public ResponseEntity<Void> deleteRole(@PathVariable Long id) throws IdInvalidException {
@@ -63,6 +88,11 @@ public class RoleController {
         return ResponseEntity.status(HttpStatus.CREATED).body(null);
     }
 
+    @Operation(summary = "Get all roles with pagination and filter")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Roles retrieved successfully"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized")
+    })
     @GetMapping("/roles")
     @ApiMessage("get all roles")
     public ResponseEntity<ResultPaginationDTO> getAllRoles(
@@ -72,6 +102,12 @@ public class RoleController {
         return ResponseEntity.status(HttpStatus.CREATED).body(this.roleService.getAllRoles(spec, pageable));
     }
 
+    @Operation(summary = "Get a role by ID")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Role found"),
+            @ApiResponse(responseCode = "400", description = "Role not found"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized")
+    })
     @GetMapping("/roles/{id}")
     @ApiMessage("get all roles")
     public ResponseEntity<Role> getRoleById(

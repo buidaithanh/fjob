@@ -27,28 +27,54 @@ public class PermissionInterceptor implements HandlerInterceptor {
             HttpServletRequest request,
             HttpServletResponse response,
             Object handler) throws Exception {
-        String path = (String) request.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE);
-        String requestURI = request.getRequestURI();
-        String httpMethod = request.getMethod();
+        // String path = (String)
+        // request.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE);
+        // String requestURI = request.getRequestURI();
+        // String httpMethod = request.getMethod();
 
-        String email = SecurityUtil.getCurrentUserLogin().isPresent() ? SecurityUtil.getCurrentUserLogin().get() : "";
-        if (email != null && email.isEmpty()) {
-            User user = this.userService.handleGetUserByName(email);
-            if (user != null) {
-                Role role = user.getRole();
-                if (role != null) {
-                    List<Permission> permissions = role.getPermissions();
-                    boolean isAllow = permissions.stream()
-                            .anyMatch(p -> p.getApiPath().equals(path) && p.getMethod().equals(httpMethod));
-                    if (isAllow == false) {
-                        throw new IdInvalidException("you dont have permission for this endpoint");
-                    }
-                } else {
-                    throw new IdInvalidException("you dont have permission for this endpoint");
+        // String email = SecurityUtil.getCurrentUserLogin().isPresent() ?
+        // SecurityUtil.getCurrentUserLogin().get() : "";
+        // if (email != null && email.isEmpty()) {
+        // User user = this.userService.handleGetUserByName(email);
+        // if (user != null) {
+        // Role role = user.getRole();
+        // if (role != null) {
+        // List<Permission> permissions = role.getPermissions();
+        // boolean isAllow = permissions.stream()
+        // .anyMatch(p -> p.getApiPath().equals(path) &&
+        // p.getMethod().equals(httpMethod));
+        // if (isAllow == false) {
+        // throw new IdInvalidException("you dont have permission for this endpoint");
+        // }
+        // } else {
+        // throw new IdInvalidException("you dont have permission for this endpoint");
 
-                }
-            }
+        // }
+        // }
+        // }
+        // return true;
+        String path = (String) request.getAttribute(
+                HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE);
+        String method = request.getMethod();
+
+        String email = SecurityUtil.getCurrentUserLogin()
+                .orElseThrow(() -> new IdInvalidException("Unauthenticated user"));
+
+        User user = userService.handleGetUserByName(email);
+        if (user == null || user.getRole() == null) {
+            throw new IdInvalidException("You do not have permission for this endpoint");
         }
+
+        boolean isAllowed = user.getRole()
+                .getPermissions()
+                .stream()
+                .anyMatch(p -> path.equals(p.getApiPath())
+                        && method.equalsIgnoreCase(p.getMethod()));
+
+        if (!isAllowed) {
+            throw new IdInvalidException("You do not have permission for this endpoint");
+        }
+
         return true;
     }
 }

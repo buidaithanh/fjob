@@ -14,6 +14,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import vn.baymax.fjob.dto.response.ResUploadFIleDTO;
 import vn.baymax.fjob.service.FileService;
 import vn.baymax.fjob.util.annotation.ApiMessage;
@@ -21,6 +28,7 @@ import vn.baymax.fjob.util.error.FileStorageException;
 
 @RestController
 @RequestMapping("/api/v1")
+@Tag(name = "File", description = "File upload APIs")
 public class FileController {
     @Value("${baymax.upload-file.base-uri}")
     private String baseURI;
@@ -31,6 +39,12 @@ public class FileController {
         this.fileService = fileService;
     }
 
+    @Operation(summary = "Upload file", description = "Upload a single file to server (pdf, jpg, jpeg, png, doc, docx)", security = @SecurityRequirement(name = "bearerAuth"))
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "File uploaded successfully", content = @Content(schema = @Schema(implementation = ResUploadFIleDTO.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid file or extension"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized")
+    })
     @PostMapping("/files")
     @ApiMessage("upload single file")
     public ResponseEntity<ResUploadFIleDTO> upload(@RequestParam MultipartFile file,

@@ -1,12 +1,16 @@
 package vn.baymax.fjob.service;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import jakarta.transaction.Transactional;
 import vn.baymax.fjob.domain.Job;
 import vn.baymax.fjob.domain.Skill;
 import vn.baymax.fjob.domain.Subscriber;
@@ -62,28 +66,44 @@ public class SubcriberService {
         return this.subcriberRepository.save(subsDB);
     }
 
-    @Scheduled(fixedRate = 100000)
+    @Scheduled(cron = "0 0/1 * * * ?") // 15 min
+    @Transactional
     public void sendSubscribersEmailJobs() {
-        List<Subscriber> listSubs = this.subcriberRepository.findAll();
-        if (listSubs != null && listSubs.size() > 0) {
-            for (Subscriber sub : listSubs) {
-                List<Skill> listSkills = sub.getSkills();
-                if (listSkills != null && listSkills.size() > 0) {
-                    List<Job> listJobs = this.jobRepository.findBySkillsAndNotiSendFalse(listSkills);
-                    if (listJobs != null && listJobs.size() > 0) {
+        List<Job> newJobs = this.jobRepository.findByNotificationSentFalse();
+        if (newJobs.isEmpty()) {
+            System.out.println("Không có job mới nào, không cần gửi email.");
+            return;
+        }
+        // each subscriber will have list job
+        Map<Subscriber, List<Job>> jobsPerSubscriber = new HashMap<>();
 
-                        List<RestEmailJob> arr = listJobs.stream()
-                                .map(job -> this.mappingJobToSendEmail(job)).collect(Collectors.toList());
+        for (Job job : newJobs) {
+            // Với mỗi job, tìm tất cả subscriber quan tâm đến các skill của job đó
+            List<Subscriber> interestedSubscribers = this.subcriberRepository.findSubscribersBySkills(job.getSkills());
 
-                        this.emailService.sendEmailFromTemplateSync(sub.getEmail(),
-                                "Co hoi viec lam hot dang cho ban",
-                                "job",
-                                sub.getName(),
-                                arr);
-                    }
-                }
+            // Gom job này vào danh sách của những subscriber quan tâm
+            for (Subscriber sub : interestedSubscribers) {
+                jobsPerSubscriber.computeIfAbsent(sub, k -> new ArrayList<>()).add(job);
             }
         }
+
+        for (Map.Entry<Subscriber, List<Job>> entry : jobsPerSubscriber.entrySet()) {
+            Subscriber subscriber = entry.getKey();
+            List<Job> relevantJobs = entry.getValue();
+
+            List<RestEmailJob> emailJobsDto = relevantJobs.stream()
+                    .map(this::mappingJobToSendEmail)
+                    .collect(Collectors.toList());
+
+            this.emailService.sendEmailFromTemplateSync(
+                    subscriber.getEmail(),
+                    "Cơ hội việc làm HOT đang chờ bạn!",
+                    "job",
+                    subscriber.getName(),
+                    emailJobsDto);
+        }
+        newJobs.forEach(job -> job.setNotificationSent(true));
+        this.jobRepository.saveAll(newJobs);
     }
 
     private RestEmailJob mappingJobToSendEmail(Job job) {

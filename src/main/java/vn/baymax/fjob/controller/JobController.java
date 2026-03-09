@@ -5,6 +5,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.turkraft.springfilter.boot.Filter;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import vn.baymax.fjob.domain.Job;
 import vn.baymax.fjob.dto.response.ResCreateJobDTO;
 import vn.baymax.fjob.dto.response.ResUpdateJobDTO;
@@ -28,6 +35,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 @RestController
 @RequestMapping("/api/v1")
+@Tag(name = "Job", description = "Job management APIs")
 public class JobController {
     private final JobService jobService;
 
@@ -35,11 +43,15 @@ public class JobController {
         this.jobService = jobService;
     }
 
+    @Operation(summary = "Create new job", description = "Create a new job posting", security = @SecurityRequirement(name = "bearerAuth"))
+    @ApiResponse(responseCode = "201", description = "Job created successfully", content = @Content(schema = @Schema(implementation = ResCreateJobDTO.class)))
     @PostMapping("/jobs")
     public ResponseEntity<ResCreateJobDTO> createJob(@RequestBody Job job) {
         return ResponseEntity.status(HttpStatus.CREATED).body(this.jobService.createJob(job));
     }
 
+    @Operation(summary = "Update job", description = "Update job information by ID", security = @SecurityRequirement(name = "bearerAuth"))
+    @ApiResponse(responseCode = "200", description = "Job updated successfully", content = @Content(schema = @Schema(implementation = ResUpdateJobDTO.class)))
     @PutMapping("/jobs")
     @ApiMessage("update job")
     public ResponseEntity<ResUpdateJobDTO> updateJob(@RequestBody Job job) throws IdInvalidException {
@@ -50,6 +62,11 @@ public class JobController {
         return ResponseEntity.ok(this.jobService.updateJob(job));
     }
 
+    @Operation(summary = "Delete job", description = "Delete job by ID", security = @SecurityRequirement(name = "bearerAuth"))
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Job deleted successfully"),
+            @ApiResponse(responseCode = "404", description = "Job not found")
+    })
     @DeleteMapping("/jobs/{id}")
     @ApiMessage("delete job by id")
     public ResponseEntity<Void> deleteJob(@PathVariable long id) throws IdInvalidException {
@@ -61,6 +78,8 @@ public class JobController {
         return ResponseEntity.ok().body(null);
     }
 
+    @Operation(summary = "Get job by ID", description = "Retrieve job details by ID")
+    @ApiResponse(responseCode = "200", description = "Job found", content = @Content(schema = @Schema(implementation = Job.class)))
     @GetMapping("/jobs/{id}")
     @ApiMessage("get job by id")
     public ResponseEntity<Job> getJobById(@PathVariable long id) throws IdInvalidException {
@@ -72,6 +91,8 @@ public class JobController {
         return ResponseEntity.ok().body(jobOptional.get());
     }
 
+    @Operation(summary = "Get all jobs", description = "Retrieve all jobs with pagination and filtering")
+    @ApiResponse(responseCode = "200", description = "List of jobs retrieved successfully", content = @Content(schema = @Schema(implementation = ResultPaginationDTO.class)))
     @GetMapping("/jobs")
     @ApiMessage("get all job")
     public ResponseEntity<ResultPaginationDTO> getAllJob(

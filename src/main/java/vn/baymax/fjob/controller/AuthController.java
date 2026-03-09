@@ -18,6 +18,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import vn.baymax.fjob.domain.User;
 import vn.baymax.fjob.dto.request.ReqLoginDTO;
@@ -30,6 +37,7 @@ import vn.baymax.fjob.util.error.IdInvalidException;
 
 @RestController
 @RequestMapping("/api/v1")
+@Tag(name = "Authentication", description = "APIs for authentication and JWT management")
 public class AuthController {
 
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
@@ -48,6 +56,9 @@ public class AuthController {
         this.passwordEncoder = passwordEncoder;
     }
 
+    @Operation(summary = "Register new user", description = "Create a new user account")
+    @ApiResponse(responseCode = "201", description = "User created successfully", content = @Content(schema = @Schema(implementation = ResCreateUserDTO.class)))
+    @ApiResponse(responseCode = "400", description = "Invalid input or email already exists")
     @PostMapping("auth/register")
     public ResponseEntity<ResCreateUserDTO> register(@Valid @RequestBody User user) throws IdInvalidException {
         boolean isEmailExist = this.userService.isEmailExsit(user.getEmail());
@@ -103,6 +114,11 @@ public class AuthController {
                 .body(resLoginDTO);
     }
 
+    @Operation(summary = "Get current account", description = "Return information of currently logged-in user", security = @SecurityRequirement(name = "bearerAuth"))
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Account retrieved successfully"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized")
+    })
     @GetMapping("/auth/account")
     @ApiMessage("get account")
     public ResponseEntity<ResLoginDTO.UserGetAccount> getAccount() {
@@ -121,6 +137,11 @@ public class AuthController {
 
     }
 
+    @Operation(summary = "Refresh Access Token", description = "Generate new access token using refresh token cookie")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Token refreshed successfully", content = @Content(schema = @Schema(implementation = ResLoginDTO.class))),
+            @ApiResponse(responseCode = "401", description = "Invalid refresh token")
+    })
     @GetMapping("/auth/refresh")
     @ApiMessage("get fresh token")
     public ResponseEntity<ResLoginDTO> getRefreshToken(@CookieValue(name = "refreshToken") String refresh_token)
@@ -162,6 +183,11 @@ public class AuthController {
                 .body(resLoginDTO);
     }
 
+    @Operation(summary = "Logout", description = "Logout user and remove refresh token", security = @SecurityRequirement(name = "bearerAuth"))
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Logout successful"),
+            @ApiResponse(responseCode = "401", description = "Invalid token")
+    })
     @PostMapping("/auth/logout")
     public ResponseEntity<Void> logout() throws IdInvalidException {
         String email = SecurityUtil.getCurrentUserLogin().isPresent() ? SecurityUtil.getCurrentUserLogin().get() : "";

@@ -1,6 +1,7 @@
-rate limit(throttle)
+rate limit(throttle) --->Apply rate limiting using Bucket4j ==== DONE
 actutor(logging, tracking)
 soft-delete
 multi thread/parallel
 handle data by batch
 transactional(rollback)
+mcp

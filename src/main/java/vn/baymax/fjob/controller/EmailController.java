@@ -18,11 +18,11 @@ public class EmailController {
         this.subcriberService = subcriberService;
     }
 
-    @GetMapping("/email")
-    @ApiMessage("Send email")
-    public String sendEmail() {
-        this.subcriberService.sendSubscribersEmailJobs();
-        return "send mail successfull";
-    }
+    // @GetMapping("/email")
+    // @ApiMessage("Send email")
+    // public String sendEmail() {
+    // this.subcriberService.sendSubscribersEmailJobs();
+    // return "send mail successfull";
+    // }
 
 }

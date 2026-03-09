@@ -21,6 +21,10 @@ import com.turkraft.springfilter.boot.Filter;
 import com.turkraft.springfilter.builder.FilterBuilder;
 import com.turkraft.springfilter.converter.FilterSpecificationConverter;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import vn.baymax.fjob.domain.Company;
 import vn.baymax.fjob.domain.Job;
 import vn.baymax.fjob.domain.Resume;
@@ -37,6 +41,7 @@ import vn.baymax.fjob.util.error.IdInvalidException;
 
 @RestController
 @RequestMapping("/api/v1")
+@Tag(name = "Resume API", description = "APIs quản lý Resume")
 public class ResumeController {
 
     private final ResumeService resumeService;
@@ -52,6 +57,11 @@ public class ResumeController {
         this.filterBuilder = filterBuilder;
     }
 
+    @Operation(summary = "Create resume", description = "Tạo mới resume khi user apply job")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Resume created successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid data")
+    })
     @PostMapping("/resumes")
     @ApiMessage("create a new resume")
     public ResponseEntity<ResCreateResumeDTO> createResume(@RequestBody Resume resume) throws IdInvalidException {
@@ -62,6 +72,7 @@ public class ResumeController {
         return ResponseEntity.status(HttpStatus.CREATED).body(this.resumeService.createResume(resume));
     }
 
+    @Operation(summary = "Update resume status", description = "Cập nhật trạng thái resume")
     @PutMapping("/resumes")
     @ApiMessage("update status resume")
     public ResponseEntity<ResUpdateResumeDTO> updateResume(@RequestBody Resume resume) throws IdInvalidException {
@@ -76,6 +87,7 @@ public class ResumeController {
     }
 
     @DeleteMapping("/resumes/{id}")
+    @Operation(summary = "Delete resume", description = "Xóa resume theo ID")
     @ApiMessage("delete a resume by id")
     public ResponseEntity<Void> deleteResume(@PathVariable long id) throws IdInvalidException {
         Optional<Resume> resumeOptional = this.resumeService.getResumeById(id);
@@ -87,6 +99,7 @@ public class ResumeController {
         return ResponseEntity.ok(null);
     }
 
+    @Operation(summary = "Get resume by ID", description = "Lấy thông tin resume theo ID")
     @GetMapping("/resumes/{id}")
     @ApiMessage("get a resume by id")
     public ResponseEntity<ResGetResumeDTO> getResume(@PathVariable long id) throws IdInvalidException {
@@ -98,6 +111,7 @@ public class ResumeController {
         return ResponseEntity.ok().body(this.resumeService.getResume(resumeOptional.get()));
     }
 
+    @Operation(summary = "Get all resumes", description = "Lấy danh sách resume, hỗ trợ filter, pagination và sorting")
     @GetMapping("/resumes")
     @ApiMessage("get all resume")
     public ResponseEntity<ResultPaginationDTO> getAllResume(
@@ -124,6 +138,7 @@ public class ResumeController {
         return ResponseEntity.ok(this.resumeService.getAll(finalSpec, pageable));
     }
 
+    @Operation(summary = "Get resume by user", description = "Lấy danh sách resume của user hiện tại")
     @PostMapping("/resumes/by-user")
     @ApiMessage("get list resume by user")
     public ResponseEntity<ResultPaginationDTO> getResumeByUser(
