@@ -13,4 +13,8 @@ public interface JobRepository extends JpaRepository<Job, Long>, JpaSpecificatio
 
     List<Job> findByNotificationSentFalse();
 
+    List<Job> findBySkills_NameContainingIgnoreCase(String skillName);
+
+    List<Job> findByLocationContainingIgnoreCase(String location);
+
 }

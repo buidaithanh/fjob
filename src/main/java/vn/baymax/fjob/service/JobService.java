@@ -129,4 +129,47 @@ public class JobService {
         return rs;
     }
 
+    // job search for chat
+    public List<Job> searchJobs(
+            String skill,
+            String location,
+            Integer salaryMin,
+            Integer salaryMax) {
+
+        List<Job> jobs = this.jobRepository.findAll();
+
+        return jobs.stream()
+                .filter(job -> {
+
+                    boolean matchSkill = true;
+                    boolean matchLocation = true;
+                    boolean matchSalary = true;
+
+                    if (skill != null && job.getSkills() != null) {
+                        matchSkill = job.getSkills()
+                                .stream()
+                                .anyMatch(s -> s.getName().toLowerCase()
+                                        .contains(skill.toLowerCase()));
+                    }
+
+                    if (location != null && job.getLocation() != null) {
+                        matchLocation = job.getLocation()
+                                .toLowerCase()
+                                .contains(location.toLowerCase());
+                    }
+
+                    if (salaryMin != null) {
+                        matchSalary = job.getSalary() >= salaryMin;
+                    }
+
+                    if (salaryMax != null) {
+                        matchSalary = matchSalary && job.getSalary() <= salaryMax;
+                    }
+
+                    return matchSkill && matchLocation && matchSalary;
+
+                })
+                .toList();
+    }
+
 }

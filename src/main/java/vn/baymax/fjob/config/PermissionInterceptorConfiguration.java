@@ -29,7 +29,9 @@ public class PermissionInterceptorConfiguration implements WebMvcConfigurer {
                 "/swagger-ui/**",
                 "/swagger-ui.html",
                 "/v3/api-docs/**",
-                "/v3/api-docs"
+                "/v3/api-docs",
+                // tam thoi bo qua
+                "/api/v1/chat/**"
         };
         registry.addInterceptor(getPermissionInterceptor())
                 .excludePathPatterns(whiteList);
