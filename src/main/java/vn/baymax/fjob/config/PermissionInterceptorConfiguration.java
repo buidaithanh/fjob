@@ -31,7 +31,8 @@ public class PermissionInterceptorConfiguration implements WebMvcConfigurer {
                 "/v3/api-docs/**",
                 "/v3/api-docs",
                 // tam thoi bo qua
-                "/api/v1/chat/**"
+                "/api/v1/chat/**",
+                "/api/v1/applications/**"
         };
         registry.addInterceptor(getPermissionInterceptor())
                 .excludePathPatterns(whiteList);

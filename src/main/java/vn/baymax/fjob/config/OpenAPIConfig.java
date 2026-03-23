@@ -30,15 +30,26 @@ public class OpenAPIConfig {
                                                                                                 .scheme("bearer")
                                                                                                 .bearerFormat("JWT")))
                                 .info(new Info()
-                                                .title("FJob API")
-                                                .description("REST API for FJob system")
-                                                .version("1.0")
+                                                .title("FJob API Documentation")
+                                                .version("1.0.0")
+                                                .description("Comprehensive REST API for FJob - Job Finding and Recruitment Platform\n\n"
+                                                                +
+                                                                "This API provides endpoints for:\n" +
+                                                                "- User authentication and authorization\n" +
+                                                                "- Job posting and management\n" +
+                                                                "- Job application tracking\n" +
+                                                                "- Company profile management\n" +
+                                                                "- Email notifications\n" +
+                                                                "- File management\n\n" +
+                                                                "**Default Credentials for Testing:**\n" +
+                                                                "- Email: admin@gmail.com\n" +
+                                                                "- Password: 123456")
                                                 .contact(new Contact()
-                                                                .name("Baymax")
-                                                                .email("baymax@example.com")
-                                                                .url("https://example.com"))
+                                                                .name("Bùi Đại Thành")
+                                                                .url("https://github.com/buidaithanh")
+                                                                .email("thanh.11db@gmail.com"))
                                                 .license(new License()
-                                                                .name("API License")
-                                                                .url("https://example.com/license")));
+                                                                .name("MIT License")
+                                                                .url("https://opensource.org/licenses/MIT")));
         }
 }

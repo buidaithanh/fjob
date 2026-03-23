@@ -96,7 +96,7 @@ public class UserService {
     }
 
     public User handleGetUserByName(String username) {
-        return this.userRepository.findByEmail(username);
+        return this.userRepository.findByEmail(username).orElse(null);
     }
 
     public boolean isEmailExsit(String email) {

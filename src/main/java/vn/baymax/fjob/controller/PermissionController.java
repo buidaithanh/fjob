@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.turkraft.springfilter.boot.Filter;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import vn.baymax.fjob.domain.Permission;
@@ -26,7 +28,7 @@ import vn.baymax.fjob.util.error.IdInvalidException;
 
 @RestController
 @RequestMapping("/api/v1")
-@Tag(name = "Permission API", description = "APIs quản lý Permission")
+@Tag(name = "Permission API", description = "APIs manage Permission")
 public class PermissionController {
     private final PermissionService permissionService;
 
@@ -34,7 +36,7 @@ public class PermissionController {
         this.permissionService = permissionService;
     }
 
-    @Operation(summary = "Create permission", description = "Tạo mới permission")
+    @Operation(summary = "Create permission", description = "Create a new permission")
     @PostMapping("/permissions")
     @ApiMessage("create a new permission")
     public ResponseEntity<Permission> createPermission(@Valid @RequestBody Permission permission)
@@ -46,7 +48,7 @@ public class PermissionController {
         return ResponseEntity.status(HttpStatus.CREATED).body(this.permissionService.create(permission));
     }
 
-    @Operation(summary = "Update permission", description = "Cập nhật permission")
+    @Operation(summary = "Update permission", description = "update a permission")
     @PutMapping("/permissions")
     @ApiMessage("update a new permission")
     public ResponseEntity<Permission> updatePermission(@Valid @RequestBody Permission permission)
@@ -61,7 +63,12 @@ public class PermissionController {
         return ResponseEntity.status(HttpStatus.CREATED).body(this.permissionService.updatePermission(permission));
     }
 
-    @Operation(summary = "Delete permission", description = "Xóa permission theo ID")
+    @Operation(summary = "Delete permission", description = "Delete apermission with ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Delete successfully"),
+            @ApiResponse(responseCode = "400", description = "ID not valid"),
+            @ApiResponse(responseCode = "404", description = "Permission does not exist")
+    })
     @DeleteMapping("/permissions/{id}")
     @ApiMessage("delete a new permission")
     public ResponseEntity<Void> deletePermission(@PathVariable Long id) throws IdInvalidException {
@@ -72,6 +79,11 @@ public class PermissionController {
         return ResponseEntity.status(HttpStatus.CREATED).body(null);
     }
 
+    @Operation(summary = "Get all permissions", description = "Get all permissions")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Get permissions successfully"),
+            @ApiResponse(responseCode = "400", description = "Request is not valid")
+    })
     @GetMapping("/permissions")
     @ApiMessage("get all permission")
     public ResponseEntity<ResultPaginationDTO> getAllPermission(

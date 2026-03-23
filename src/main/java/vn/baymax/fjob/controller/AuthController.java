@@ -73,10 +73,16 @@ public class AuthController {
 
     }
 
+    @Operation(summary = "User login", description = "Authenticate user and return access token along with refresh token stored in HttpOnly cookie")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Login successful", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ResLoginDTO.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid request data"),
+            @ApiResponse(responseCode = "401", description = "Invalid username or password")
+    })
     @PostMapping("auth/login")
+    @ApiMessage("login success")
     public ResponseEntity<ResLoginDTO> login(@Valid @RequestBody ReqLoginDTO loginDTO) {
         // input username and password into security
-
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
                 loginDTO.getUsername(), loginDTO.getPassword());
 

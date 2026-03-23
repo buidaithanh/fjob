@@ -50,7 +50,6 @@ public class UserController {
         this.passwordEncoder = passwordEncoder;
     }
 
-    // CREATE USER
     @Operation(summary = "Create new user", description = "Create a new user account in the system")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "User created successfully", content = @Content(schema = @Schema(implementation = User.class))),
@@ -74,7 +73,6 @@ public class UserController {
 
     }
 
-    // DELETE USER
     @Operation(summary = "Delete user", description = "Delete a user by id")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "User deleted"),
@@ -91,7 +89,6 @@ public class UserController {
         return ResponseEntity.ok(null);
     }
 
-    // GET USER BY ID
     @Operation(summary = "Get user by id", description = "Retrieve detail information of a user")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "User retrieved successfully", content = @Content(schema = @Schema(implementation = ResUserDTO.class))),
@@ -118,7 +115,6 @@ public class UserController {
         return ResponseEntity.ok(this.userService.getAllUsers(spec, pageable));
     }
 
-    // UPDATE USER
     @Operation(summary = "Update user", description = "Update user information by id")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "User updated successfully", content = @Content(schema = @Schema(implementation = User.class))),

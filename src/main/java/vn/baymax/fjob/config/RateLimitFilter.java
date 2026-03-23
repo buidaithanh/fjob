@@ -54,11 +54,7 @@ public class RateLimitFilter extends OncePerRequestFilter {
         return cache.computeIfAbsent(key, k -> createBucketForEndpoint(endpoint));
     }
 
-    /**
-     * Tạo bucket với giới hạn khác nhau cho từng loại endpoint
-     */
     private Bucket createBucketForEndpoint(String endpoint) {
-        // 1. AUTH ENDPOINTS - Chống brute force
         if (endpoint.startsWith("/api/v1/auth/login") ||
                 endpoint.startsWith("/api/v1/auth/register")) {
             return Bucket.builder()
@@ -66,14 +62,12 @@ public class RateLimitFilter extends OncePerRequestFilter {
                     .build();
         }
 
-        // 2. SEARCH/EXPENSIVE OPERATIONS
         if (endpoint.contains("/search") || endpoint.contains("/filter")) {
             return Bucket.builder()
                     .addLimit(Bandwidth.classic(30, Refill.intervally(30, Duration.ofMinutes(1))))
                     .build();
         }
 
-        // 3. WRITE OPERATIONS (POST, PUT, DELETE)
         if (endpoint.startsWith("/api/v1/resumes") ||
                 endpoint.startsWith("/api/v1/applications")) {
             return Bucket.builder()
@@ -81,7 +75,6 @@ public class RateLimitFilter extends OncePerRequestFilter {
                     .build();
         }
 
-        // 4. READ OPERATIONS - Có thể generous hơn
         if (endpoint.startsWith("/api/v1/jobs") ||
                 endpoint.startsWith("/api/v1/companies") ||
                 endpoint.startsWith("/api/v1/skills")) {
@@ -90,7 +83,6 @@ public class RateLimitFilter extends OncePerRequestFilter {
                     .build();
         }
 
-        // 5. DEFAULT
         return Bucket.builder()
                 .addLimit(Bandwidth.classic(50, Refill.intervally(50, Duration.ofMinutes(1))))
                 .build();
@@ -112,10 +104,7 @@ public class RateLimitFilter extends OncePerRequestFilter {
         return "ip:" + clientIp;
     }
 
-    /**
-     * Chuẩn hóa endpoint để group các path parameters
-     * VD: /api/v1/jobs/123 và /api/v1/jobs/456 đều thành /api/v1/jobs/{id}
-     */
+    // Chuẩn hóa endpoint
     private String normalizeEndpoint(String endpoint) {
         if (endpoint.contains("?")) {
             endpoint = endpoint.substring(0, endpoint.indexOf("?"));

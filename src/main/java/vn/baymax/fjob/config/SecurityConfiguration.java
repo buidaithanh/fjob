@@ -56,7 +56,8 @@ public class SecurityConfiguration {
                 "/swagger-ui/**",
                 "/swagger-ui.html",
                 // tam thoi bo qua
-                "api/v1/chat/**"
+                "api/v1/chat/**",
+                "/api/v1/applications/**"
         };
 
         http

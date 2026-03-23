@@ -1,72 +1,73 @@
 package vn.baymax.fjob.domain;
 
 import java.time.Instant;
-import java.util.List;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import vn.baymax.fjob.util.SecurityUtil;
-import vn.baymax.fjob.util.constant.GenderEnum;
 
 @Entity
 @Getter
 @Setter
-@Table(name = "users")
-public class User {
-
+@Table(name = "applications")
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+public class Application {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
-    private String name;
-    private String email;
-    private String password;
-    private int age;
+    @ManyToOne
+    @JoinColumn(name = "job_id", nullable = false)
+    private Job job;
 
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
+    @Builder.Default
     @Enumerated(EnumType.STRING)
-    private GenderEnum gender;
+    @Column(name = "status", nullable = false)
+    private ApplicationStatus status = ApplicationStatus.PENDING;
 
-    private String address;
+    @Column(name = "cv_path")
+    private String cvPath;
 
-    @Column(columnDefinition = "MEDIUMTEXT")
-    private String refreshToken;
+    @Column(name = "cover_letter", columnDefinition = "LONGTEXT")
+    private String coverLetter;
 
     private Instant createdAt;
     private Instant updatedAt;
     private String createdBy;
     private String updatedBy;
 
-    @ManyToOne
-    @JoinColumn(name = "company_id")
-    private Company company;
+    @Column(name = "review_note", columnDefinition = "TEXT")
+    private String reviewNote;
 
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
-    @JsonIgnore
-    private List<Resume> resumes;
-
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
-    @JsonIgnore
-    private List<Application> applications;
-
-    @ManyToOne
-    @JoinColumn(name = "role_id")
-    private Role role;
+    public enum ApplicationStatus {
+        PENDING,
+        REVIEWING,
+        ACCEPTED,
+        REJECTED,
+        WITHDRAWN
+    }
 
     @PrePersist
     public void handleCreateBeforeSave() {
@@ -77,11 +78,10 @@ public class User {
     }
 
     @PreUpdate
-    public void handleUpdateCompany() {
+    public void handleUpdateApplication() {
         this.updatedAt = Instant.now();
         this.updatedBy = SecurityUtil.getCurrentUserLogin().isPresent() == true
                 ? SecurityUtil.getCurrentUserLogin().get()
                 : "";
     }
-
 }
